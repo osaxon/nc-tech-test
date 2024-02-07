@@ -1,26 +1,19 @@
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { Card, FormattedCard, Template } from "../types";
 import { formatCardsResponse } from "../utils/utils";
 
-export const readCards = async (): Promise<FormattedCard[]> => {
+export const readCards = async (): Promise<Card[]> => {
     const data = await readFile("src/data/cards.json", "utf-8");
     const cards: Card[] = JSON.parse(data);
-
-    // get template id
-    
-    // lookup template data
-
-    // add template data to card object
-
-    const templates: Template[] = await readTemplates();
-
-    const formattedCards = formatCardsResponse(cards, templates);
-
-    return formattedCards;
+    return cards;
 };
 
 export const readTemplates = async () => {
     const data = await readFile("src/data/templates.json", "utf-8");
     const templates = JSON.parse(data);
     return templates;
+};
+
+export const writeCards = async (cards: Card[]) => {
+    await writeFile("src/data/cards.json", JSON.stringify(cards, null, 2));
 };
