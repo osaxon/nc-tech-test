@@ -1,34 +1,34 @@
 import * as request from "supertest";
-import { readFileSync, writeFileSync } from "fs";
+import { readFile, writeFile } from "fs/promises";
 import { app } from "../server";
 
 import { Card, FormattedCard, Template } from "../types";
 import { formatCardsResponse, generateNewCardId } from "../utils/utils";
 
-
 let cards: Card[];
 let templates: Template[];
 let cardSnapshot: Card[];
 
-function setTestData() {
-    const cardData = readFileSync("src/data/cards.json", "utf-8");
-    const templateData = readFileSync("src/data/templates.json", "utf-8");
+async function setTestData() {
+    const cardData = await readFile("src/data/cards.json", "utf-8");
+    const templateData = await readFile("src/data/templates.json", "utf-8");
     cards = JSON.parse(cardData);
     cardSnapshot = cards;
     templates = JSON.parse(templateData);
-    console.log(cards);
 }
 
-function resetTestData() {
-    writeFileSync("src/data/cards.json", JSON.stringify(cardSnapshot, null, 2));
+async function resetTestData() {
+    await writeFile(
+        "src/data/cards.json",
+        JSON.stringify(cardSnapshot, null, 2)
+    );
 }
 
-beforeAll(() => {
+beforeEach(() => {
     setTestData();
 });
 
 afterEach(() => {
-    console.log("resetting test data");
     resetTestData();
 });
 
@@ -44,6 +44,17 @@ describe("/cards/:cardId", () => {
     });
     test("GET:404 returns a message if the card id is not found", async () => {
         const response = await request(app).get("/cards/123");
+        expect(response.status).toBe(404);
+        expect(response.text).toBe("Card not found");
+    });
+    test("DELETE:200 deletes the card matching the given card id as params", async () => {
+        const response = await request(app).delete("/cards/card001");
+        const updatedCards = await request(app).get("/cards");
+        expect(response.status).toBe(200);
+        expect(updatedCards.body.cards).toHaveLength(2);
+    });
+    test("DELETE:404 returns a message if the card id is not found", async () => {
+        const response = await request(app).delete("/cards/123");
         expect(response.status).toBe(404);
         expect(response.text).toBe("Card not found");
     });

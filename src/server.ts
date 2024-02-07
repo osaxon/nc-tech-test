@@ -1,5 +1,10 @@
 import * as express from "express";
-import { getCard, getCards, postCard } from "./controllers/cards.controller";
+import {
+    deleteCard,
+    getCard,
+    getCards,
+    postCard,
+} from "./controllers/cards.controller";
 
 export const app = express();
 
@@ -10,6 +15,7 @@ app.get("/cards", getCards);
 app.post("/cards", postCard);
 
 app.get("/cards/:cardId", getCard);
+app.delete("/cards/:cardId", deleteCard);
 
 app.get("/cards/:cardId/:sizeId?", () => {
     // respond with card by id

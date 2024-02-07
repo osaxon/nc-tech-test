@@ -54,3 +54,20 @@ export const postCard = async (req: Request, res: Response) => {
         res.status(500).send("There was an error creating the card.");
     }
 };
+
+export const deleteCard = async (req: Request, res: Response) => {
+    try {
+        const cards = await readCards();
+        const updatedCards = cards.filter(
+            (card) => card.id !== req.params.cardId
+        );
+        if (cards.length === updatedCards.length) {
+            res.status(404).send("Card not found");
+        } else {
+            await writeCards(updatedCards);
+            res.status(200).send("Card deleted");
+        }
+    } catch (error) {
+        res.status(500).send("There was an error deleting the card.");
+    }
+};
