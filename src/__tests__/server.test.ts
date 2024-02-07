@@ -38,6 +38,34 @@ describe("/cards", () => {
             expect(typeof card.imageUrl).toBe("string");
         }
     });
+    test("POST:200 creates a new card object and returns the new card", async () => {
+        const newCard = {
+            title: "new card",
+            template_id: "template001",
+            sizes: ["sm", "md", "gt"],
+            basePrice: 200,
+            pages: [
+                {
+                    title: "Front Cover",
+                    template: "template001",
+                },
+                {
+                    title: "Inside Left",
+                    template: "template002",
+                },
+                {
+                    title: "Inside Right",
+                    template: "template003",
+                },
+                {
+                    title: "Back Cover",
+                    template: "template004",
+                },
+            ],
+        };
+        const response = await request(app).post("/cards").send(newCard);
+        expect(response.status).toBe(200);
+    });
 });
 
 describe("formatCardsResponse function", () => {
