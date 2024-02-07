@@ -1,10 +1,36 @@
 import * as request from "supertest";
+import { readFileSync, writeFileSync } from "fs";
 import { app } from "../server";
-const cards = require("../data/cards.json");
-const templates = require("../data/templates.json");
-import exp from "constants";
-import { Card, FormattedCard } from "../types";
-import { formatCardsResponse } from "../utils/utils";
+
+import { Card, FormattedCard, Template } from "../types";
+import { formatCardsResponse, generateNewCardId } from "../utils/utils";
+
+
+let cards: Card[];
+let templates: Template[];
+let cardSnapshot: Card[];
+
+function setTestData() {
+    const cardData = readFileSync("src/data/cards.json", "utf-8");
+    const templateData = readFileSync("src/data/templates.json", "utf-8");
+    cards = JSON.parse(cardData);
+    cardSnapshot = cards;
+    templates = JSON.parse(templateData);
+    console.log(cards);
+}
+
+function resetTestData() {
+    writeFileSync("src/data/cards.json", JSON.stringify(cardSnapshot, null, 2));
+}
+
+beforeAll(() => {
+    setTestData();
+});
+
+afterEach(() => {
+    console.log("resetting test data");
+    resetTestData();
+});
 
 describe("/cards/:cardId", () => {
     test("GET:200 returns a card matching the given card id as params", async () => {
@@ -101,5 +127,16 @@ describe("formatCardsResponse function", () => {
         const originalCards = [...cards];
         formatCardsResponse(cards, templates);
         expect(cards).toEqual(originalCards);
+    });
+});
+
+describe("generateNewCardId function", () => {
+    test("takes an array of card objects and returns a string", () => {
+        const newId = generateNewCardId(cards);
+        expect(typeof newId).toBe("string");
+    });
+    test("returns a new card id in the format cardXXX", () => {
+        const newId = generateNewCardId(cards);
+        expect(newId).toMatch(/^card\d{3}$/);
     });
 });
