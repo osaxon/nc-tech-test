@@ -42,15 +42,12 @@ export const postCard = async (req: Request, res: Response) => {
             id: generateNewCardId(cards),
             ...req.body,
         };
-        // add new card to current cards
         const updatedCards = [...cards, newCard];
         await writeCards(updatedCards);
-        // save new cards
-        // return new card with generated id
+
         const templates = await readTemplates();
         res.json(formatCard(newCard, templates));
     } catch (error) {
-        // Handle error
         res.status(500).send("There was an error creating the card.");
     }
 };
